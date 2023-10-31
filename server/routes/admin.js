@@ -143,6 +143,52 @@ router.post('/add-post', authMiddleware, async(req,res) => {
     
 });
 
+/**
+ * GET /
+ * Admin - Edit Post
+ */
+router.get('/edit-post/:id', authMiddleware, async(req,res) => {
+    
+    try {
+        const locals = {
+            title: "Edit Post",
+            description: "Simple Blog"
+        }
+        const data = await Post.findOne({_id: req.params.id});
+
+        res.render('admin/edit-post', {
+            locals,
+            data,
+            layout:adminLayout
+        })
+    } catch (error) {
+        console.log(error);
+    }
+})
+
+
+
+/**
+ * PUT /
+ * Admin - Update Post
+ */
+
+router.put('/edit-post/:id',authMiddleware, async (req,res) => {
+    try {
+
+        await Post.findByIdAndUpdate(req.params.id, {
+            title: req.body.title,
+            body: req.body.body,
+            updatedAt: Date.now()
+        });
+
+        res.redirect(`/edit-post/${req.params.id}`);
+
+    } catch (error) {
+        
+    }
+});
+
 
 /**
  * POST /
@@ -170,6 +216,27 @@ router.post('/register', async(req,res) => {
     }
     });
 
+/**
+ * DELETE /
+ * Admin - Delete Post
+ */
 
+router.delete('/delete-post/:id', authMiddleware,async(req,res) => {
+    try {
+        await Post.deleteOne({_id: req.params.id});
+        res.redirect('/dashboard');
+    } catch (error) {
+        console.log(error);
+    }
+});
+
+/**
+ * GET /
+ * Admin - Logout
+ */
+router.get('/logout', (req,res) => {
+    res.clearCookie('token');
+    res.redirect('/');
+});
 
 module.exports = router;
